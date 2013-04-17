@@ -15,7 +15,7 @@ public class Game extends View implements Runnable{
 	int q ;
 	int r;
 	Rect atual=new Rect();
-	Boolean possivel =true;
+	Boolean possivel =false;
 	Paint paint = new Paint();
 	private static float positionX=0;
 	private static float positionY=0;
@@ -69,11 +69,10 @@ public class Game extends View implements Runnable{
 			q = (int)event.getRawX();
 			r = (int)event.getRawY();
 			if(atual.contains(q, r)){
-			
+			possivel=true;
 			}
 			else{
-				q=0;
-				r=0;
+				possivel=false;
 			}
 
 		}
@@ -82,17 +81,17 @@ public class Game extends View implements Runnable{
 		
 		if (event.getAction() == MotionEvent.ACTION_UP) 
 		{
-			Log.i("foooooooooi", "UP !!!");
+			Log.i("foi", "UP !!!");
 			int a = (int)event.getRawX();
 			int b = (int)event.getRawY();
 			
-			if(q!=0 & r!=0){
+			if(possivel){
 				if(a-q >=20){
 				
 					aplicarForca(10);
 				}
 				else{
-					aplicarForca(q);
+					possivel=false;
 				}
 			
 			}
