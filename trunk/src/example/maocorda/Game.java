@@ -12,12 +12,11 @@ import android.view.View;
 
 public class Game extends View implements Runnable{
 
-	int q ;
-	int r;
-	Rect atual=new Rect();
-	Boolean possivel =false;
+	
+	
+	
 	Paint paint = new Paint();
-	private static float positionX=0;
+	static float positionX=0;
 	private static float positionY=0;
 	
 	public Game(Context context) {
@@ -37,7 +36,7 @@ public class Game extends View implements Runnable{
 		
 		canvas.drawRect(positionX, positionY, positionX+40, positionY+40, paint);
 
-		atual.set((int)positionX, (int)positionY, (int)positionX+40, (int)positionY+40);
+		Puxando.atual.set((int)positionX, (int)positionY, (int)positionX+40, (int)positionY+40);
 		
 	}
 	@Override
@@ -61,52 +60,8 @@ public class Game extends View implements Runnable{
 		
 	}
 	
-	public boolean onTouchEvent(MotionEvent event) 
-	{	
-		if (event.getAction() == MotionEvent.ACTION_DOWN) 
-		{
-			Log.i("foi", "down baby down !! ");
-			q = (int)event.getRawX();
-			r = (int)event.getRawY();
-			if(atual.contains(q, r)){
-			possivel=true;
-			}
-			else{
-				possivel=false;
-			}
-
-		}
-		
-
-		
-		if (event.getAction() == MotionEvent.ACTION_UP) 
-		{
-			Log.i("foi", "UP !!!");
-			int a = (int)event.getRawX();
-			int b = (int)event.getRawY();
-			
-			if(possivel){
-				if(a-q >=20){
-				
-					aplicarForca(10);
-				}
-				else{
-					possivel=false;
-				}
-			
-			}
-			
-		}
-		return super.onTouchEvent(event);
-	}
-
-	private void aplicarForca(int i) {
-		
-		positionX+=i;
-		
-		// TODO Auto-generated method stub
-		
-	}
+	
+	
 
 
 
