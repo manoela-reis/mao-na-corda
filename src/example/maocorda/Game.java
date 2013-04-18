@@ -18,9 +18,12 @@ public class Game extends View implements Runnable
 	int r;
 	Boolean possivel =false;
 	static Rect atual=new Rect();
+	static Rect corda=new Rect();
 	Paint paint = new Paint();
 	static float positionX=40;
 	private static float positionY=30;
+	private static float Width=30;
+	private static float Height=30;
 	ImageManager img;
 	Bitmap imagem;
 	
@@ -44,8 +47,10 @@ public class Game extends View implements Runnable
 	{
 		super.onSizeChanged(w, h, oldw, oldh);
 		
-		positionX= getWidth()/2;
-		positionY=getHeight()/2;
+		Width= getWidth()/2;
+		Height=getHeight()/2;
+		positionX=Width;
+		positionY=Height;
 	
 	}
 	
@@ -77,7 +82,7 @@ public class Game extends View implements Runnable
 			if(possivel){
 				if(a-q >=4){
 				
-					aplicarForca(10);
+					aplicarForca(a-q);
 				}
 				else{
 					possivel=false;
@@ -100,10 +105,11 @@ public class Game extends View implements Runnable
 	public void draw(Canvas canvas){
 		super.draw(canvas);
 		
-		atual.set(0, 0, (int)positionX*2, (int)positionY*2);
+		atual.set(0, 0, (int)Width*2, (int)Height*2);
+		corda.set((int)positionX,(int) positionY,(int) positionX+20,(int) positionY+10);
+		
 		canvas.drawBitmap(imagem, null, atual, paint);
-		//canvas.drawBitmap(imagem, 0, 0, paint);	
-		//canvas.drawRect(atual, paint);
+		canvas.drawRect(corda, paint);
 
 			
 	}
