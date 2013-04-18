@@ -61,7 +61,7 @@ public class Game extends View implements Runnable
 			Log.i("foi", "down baby down !! ");
 			q = (int)event.getRawX();
 			r = (int)event.getRawY();
-			if(atual.contains(q, r)){
+			if(corda.contains(q, r)){
 			possivel=true;
 			//aplicarForca(10);
 
