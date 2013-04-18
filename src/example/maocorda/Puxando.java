@@ -40,6 +40,14 @@ public class Puxando extends View{
 		}
 		
 
+		if (event.getAction() == MotionEvent.ACTION_MOVE) 
+		{
+			int a = (int)event.getRawX();
+			int b = (int)event.getRawY();
+			if(atual.contains(a, b)){
+				aplicarForca(1);
+			}
+		}
 		
 		if (event.getAction() == MotionEvent.ACTION_UP) 
 		{
@@ -48,7 +56,7 @@ public class Puxando extends View{
 			int b = (int)event.getRawY();
 			
 			if(possivel){
-				if(a-q >=20){
+				if(a-q >=4){
 				
 					aplicarForca(10);
 				}
