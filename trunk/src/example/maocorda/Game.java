@@ -82,7 +82,7 @@ public class Game extends View implements Runnable
 			if(possivel){
 				if(a-q >=4){
 				
-					aplicarForca(a-q);
+					aplicarForca((int)(a-q)/3);
 				}
 				else{
 					possivel=false;
