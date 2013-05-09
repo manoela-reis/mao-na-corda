@@ -1,4 +1,4 @@
-package example.maocorda;
+package example.corda;
 
 
 import android.content.Context;
@@ -35,6 +35,10 @@ public class Game extends View implements Runnable
 	int Forca;
 	int Num_impulso;
 	Boolean impp = false;
+	private int segTouchX;
+	private int segTouchY;
+	String SegTouch ;
+	String PriTouch;
 	
 	public Game(Context context) {
 		super(context);
@@ -73,31 +77,82 @@ public class Game extends View implements Runnable
 			Log.i("foi", "down baby down !! ");
 			q = (int)event.getRawX();
 			r = (int)event.getRawY();
-			
+			Log.d("vamos", ""+q);
 			if(Impulso.contains(q, r- Impulso.height())){
 				impp=true;
 				Num_impulso++;
 				current= period;
+				PriTouch="Impulso";
 			}
 			if(corda.contains(q, r-corda.height()/2)){
 			possivel=true;
-			
+			impp=false;
+			PriTouch="corda";
 
 			}
-			else{
-				possivel=false;
+			
+		}
+		if (event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN) 
+		{
+			Log.i("foi", "dsegundo !! ");
+			segTouchX = (int)event.getX(1);
+			segTouchY= (int)event.getY(1);
+			
+			Log.d("vamos", ""+segTouchX);
+			if(impp==false){
+			if(Impulso.contains(segTouchX, segTouchY)){
+				impp=true;
+				Num_impulso++;
+				current= period;
+				SegTouch="Impulso";
+			}
+			}
+			if(possivel == false){
+			if(corda.contains(segTouchX, segTouchY)){
+			possivel=true;
+			SegTouch="corda";
+
+
+			}
 			}
 		}
+		
+		if (event.getAction() == MotionEvent.ACTION_POINTER_2_UP) 
+		{
+			Log.i("foi", "dsegundo UP!! ");
+			int p = (int)event.getRawX();
+			
+
+			if(possivel && SegTouch=="corda"){
+				
+				if(p-segTouchX >=4){
+					
+					aplicarForca((int)(p-segTouchX)/3*Num_impulso);
+					possivel=false;
+					
+				}
+				else{
+					possivel=false;
+					
+
+				}
+			
+			}
+			if(impp&& SegTouch=="Impulso"){
+				Num_impulso= (current -period)*10;
+				impp=false;
+			}
+			
+		}
+	
 		
 		if (event.getAction() == MotionEvent.ACTION_MOVE) 
 		{
 		
-			if(possivel && q<event.getRawX()){
+			if(possivel && q<event.getRawX() &&  PriTouch=="corda"){
 				positionX = event.getRawX();
 			}
-			else{
-				possivel=false;
-			}
+			
 		
 
 		}
@@ -107,7 +162,7 @@ public class Game extends View implements Runnable
 			int a = (int)event.getRawX();
 			int b = (int)event.getRawY();
 			
-			if(possivel){
+			if(possivel && PriTouch=="corda"){
 				
 				if(a-q >=4){
 					
@@ -117,16 +172,16 @@ public class Game extends View implements Runnable
 				}
 				else{
 					possivel=false;
-					impp=false;
+					
 
 				}
 			
 			}
-			if(impp){
+			if(impp && PriTouch=="Impulso"){
 				Num_impulso= (current -period)*10;
 				impp=false;
 			}
-			positionX=Width;
+			
 			
 		}
 		return super.onTouchEvent(event);
@@ -137,7 +192,7 @@ public class Game extends View implements Runnable
 				
 			Forca =i;
 				// TODO Auto-generated method stub
-				
+			positionX=Width;
 			}
 
 
