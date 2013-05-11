@@ -16,6 +16,7 @@ public class Game extends View implements Runnable
 	int q;
 	int r;
 	int p;
+	int t;
 	Boolean possivel = false;
 	static Rect atual = new Rect();
 	static Rect corda = new Rect();
@@ -74,13 +75,13 @@ public class Game extends View implements Runnable
 			q = (int) event.getX(0);
 			r = (int) event.getY(0);
 			Log.d("vamos", "" + q);
-			if (Impulso.contains(q, r - Impulso.height())) {
+			if (Impulso.contains(q, r)) {
 				impp = true;
 				Num_impulso++;
 				current = period;
 				PriTouch = "Impulso";
 			}
-			if (corda.contains(q, r - corda.height() / 2)) {
+			if (corda.contains(q, r )) {
 				possivel = true;
 				impp = false;
 				PriTouch = "corda";
@@ -114,8 +115,8 @@ public class Game extends View implements Runnable
 		if (event.getAction() == MotionEvent.ACTION_POINTER_2_UP) {
 			Log.i("foi", "dsegundo UP!! ");
 			p = (int) event.getX(1);
-
-			if (possivel && SegTouch == "corda") {
+			t =(int) event.getY(1);
+			if (corda.contains(p, t )) {
 
 				if (p - segTouchX >= 4) {
 
@@ -128,7 +129,8 @@ public class Game extends View implements Runnable
 				}
 
 			}
-			if (impp && SegTouch == "Impulso") {
+		
+			if (Impulso.contains(p, t )) {
 				Num_impulso = (current - period) * 10;
 				impp = false;
 			}
@@ -138,11 +140,11 @@ public class Game extends View implements Runnable
 		if (event.getAction() == MotionEvent.ACTION_MOVE) {
 
 			if (possivel == true && q < event.getX(0) && PriTouch == "corda") {
-				positionX = event.getRawX();
+				positionX = event.getX(0);
 			}
 
-			if (possivel == true && p < event.getX(1) && SegTouch == "corda") {
-				positionX = event.getRawX();
+			if (possivel == true && segTouchX < event.getX(1) && SegTouch == "corda") {
+				positionX = event.getX(1);
 			}
 		}
 		if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -150,7 +152,7 @@ public class Game extends View implements Runnable
 			int a = (int) event.getX(0);
 			int b = (int) event.getY(0);
 
-			if (possivel && PriTouch == "corda") {
+			if (corda.contains(a, b )) {
 
 				if (a - q >= 4) {
 
@@ -163,7 +165,7 @@ public class Game extends View implements Runnable
 				}
 
 			}
-			if (impp && PriTouch == "Impulso") {
+			if (Impulso.contains(a, b )) {
 				Num_impulso = (current - period) * 10;
 				impp = false;
 			}
