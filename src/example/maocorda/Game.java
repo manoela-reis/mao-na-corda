@@ -1,12 +1,19 @@
 package example.maocorda;
 
+import java.text.BreakIterator;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
+import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -17,6 +24,8 @@ public class Game extends View implements Runnable
 	int r;
 	int p;
 	int t;
+	int a;
+	int b;
 	Boolean possivel = false;
 	static Rect atual = new Rect();
 	static Rect corda = new Rect();
@@ -40,13 +49,15 @@ public class Game extends View implements Runnable
 	private int segTouchY;
 	String SegTouch;
 	String PriTouch;
+	private Queue<MotionEvent> fila;
+	private SparseArray<PointF> dedos = new SparseArray<PointF>();
 
 	public Game(Context context) {
 		super(context);
 		setFocusableInTouchMode(true);
 		setClickable(true);
 		setLongClickable(true);
-
+		fila = new LinkedList<MotionEvent>();
 		paint.setColor(Color.BLACK);
 		paint.setTextSize(20);
 		img = new ImageManager((int) positionY * 2, (int) positionY * 2);
@@ -55,6 +66,11 @@ public class Game extends View implements Runnable
 
 		Thread processo = new Thread(this);
 		processo.start();
+	}
+
+	public boolean onTouchEvent(MotionEvent event) {
+		fila.add(event);
+		return super.onTouchEvent(event);
 	}
 
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -69,109 +85,171 @@ public class Game extends View implements Runnable
 
 	}
 
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			Log.i("foi", "down baby down !! ");
-			q = (int) event.getX(0);
-			r = (int) event.getY(0);
-			Log.d("vamos", "" + q);
-			if (Impulso.contains(q, r)) {
-				impp = true;
-				Num_impulso++;
-				current = period;
-				PriTouch = "Impulso";
-			}
-			if (corda.contains(q, r )) {
-				possivel = true;
-				impp = false;
-				PriTouch = "corda";
+	public void processEventQueue() {
 
-			}
+		MotionEvent event = (MotionEvent) fila.poll();
+		if (event != null) {
 
-		}
-		if (event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN) {
-			Log.i("foi", "dsegundo !! ");
-			segTouchX = (int) event.getX(1);
-			segTouchY = (int) event.getY(1);
+			int action = MotionEventCompat.getActionMasked(event);
 
-			Log.d("vamos", "" + segTouchX);
-			if (impp == false) {
-				if (Impulso.contains(segTouchX, segTouchY)) {
+			if (action == MotionEvent.ACTION_DOWN) {
+				Log.i("foi", "down baby down !! ");
+				int id = event.getPointerId(event.getActionIndex());
+
+				PointF point = new PointF(event.getX(id), event.getY(id));
+
+				q = (int) event.getX(id);
+				r = (int) event.getY(id);
+				Log.d("vamos", "" + q);
+				if (Impulso.contains(q, r)) {
 					impp = true;
 					Num_impulso++;
 					current = period;
-					SegTouch = "Impulso";
+					PriTouch = "Impulso";
 				}
-			}
-			if (possivel == false) {
-				if (corda.contains(segTouchX, segTouchY)) {
-					SegTouch = "corda";
+				if (corda.contains(q, r)) {
 					possivel = true;
+					impp = false;
+					PriTouch = "corda";
 
 				}
+				dedos.put(id, point);
+
 			}
-		}
+			if (action == MotionEvent.ACTION_POINTER_DOWN) {
+				Log.i("foi", "dsegundo !! ");
+				int id = event.getPointerId(event.getActionIndex());
 
-		if (event.getAction() == MotionEvent.ACTION_POINTER_2_UP) {
-			Log.i("foi", "dsegundo UP!! ");
-			p = (int) event.getX(1);
-			t =(int) event.getY(1);
-			if (corda.contains(p, t )) {
+				PointF point = new PointF(event.getX(id), event.getY(id));
 
-				if (p - segTouchX >= 4) {
+				segTouchX = (int) event.getX(id);
+				segTouchY = (int) event.getY(id);
 
-					aplicarForca((int) (p - segTouchX) / 3 * Num_impulso);
-					possivel = false;
-
-				} else {
-					possivel = false;
-
+				Log.d("vamos", "" + segTouchX);
+				if (impp == false) {
+					if (Impulso.contains(segTouchX, segTouchY)) {
+						impp = true;
+						Num_impulso++;
+						current = period;
+						SegTouch = "Impulso";
+					}
 				}
+				if (possivel == false) {
+					if (corda.contains(segTouchX, segTouchY)) {
+						SegTouch = "corda";
+						possivel = true;
 
-			}
-		
-			if (Impulso.contains(p, t )) {
-				Num_impulso = (current - period) * 10;
-				impp = false;
-			}
-
-		}
-
-		if (event.getAction() == MotionEvent.ACTION_MOVE) {
-
-			if (possivel == true && q < event.getX(0) && PriTouch == "corda") {
-				positionX = event.getX(0);
-			}
-
-			if (possivel == true && segTouchX < event.getX(1) && SegTouch == "corda") {
-				positionX = event.getX(1);
-			}
-		}
-		if (event.getAction() == MotionEvent.ACTION_UP) {
-			Log.i("foi", "UP !!!");
-			int a = (int) event.getX(0);
-			int b = (int) event.getY(0);
-
-			if (corda.contains(a, b )) {
-
-				if (a - q >= 4) {
-
-					aplicarForca((int) (a - q) / 3 * Num_impulso);
-					possivel = false;
-
-				} else {
-					possivel = false;
-
+					}
 				}
+				dedos.put(id, point);
 
 			}
-			if (Impulso.contains(a, b )) {
-				Num_impulso = (current - period) * 10;
-				impp = false;
+
+			if (action == MotionEvent.ACTION_POINTER_UP) {
+				Log.i("foi", "dsegundo UP!! ");
+				int id = event.getPointerId(event.getActionIndex());
+				p = (int) event.getX(id);
+				t = (int) event.getY(id);
+				if (possivel) {
+					if (corda.contains(p, t)) {
+
+						if (PriTouch == "corda") {
+
+							aplicarForca((int) (p - q) / 3 * Num_impulso);
+							possivel = false;
+
+						} else {
+							if (SegTouch == "corda") {
+
+								aplicarForca((int) (p - segTouchX) / 3
+										* Num_impulso);
+								possivel = false;
+
+							}
+						}
+					}
+				}
+				if (impp) {
+					if (Impulso.contains(p, t)) {
+						Num_impulso = (current - period) * 10;
+						impp = false;
+					}
+				}
+				dedos.remove(id);
 			}
 
+			if (action == MotionEvent.ACTION_MOVE) {
+				for (int i = 0; i < event.getPointerCount(); i++) {
+					int id = event.getPointerId(i);
+
+					PointF point = (PointF) dedos.get(id);
+					if (point != null) {
+						if ((int) point.x == q) {
+							if (possivel == true && q < event.getX(id)
+									&& PriTouch == "corda") {
+								if (corda.contains((int) event.getX(id),
+										(int) event.getY(id))) {
+									positionX = event.getX(id);
+								} else {
+									aplicarForca((int) ((event.getX(id) - q) / 3 * Num_impulso));
+									possivel = false;
+									dedos.remove(id);
+								}
+							}
+						}
+
+						if ((int) point.x == segTouchX) {
+							if (possivel == true && segTouchX < event.getX(id)
+									&& SegTouch == "corda") {
+								if (corda.contains((int) event.getX(id),
+										(int) event.getY(id))) {
+									positionX = event.getX(id);
+								} else {
+									aplicarForca((int) ((event.getX(id) - segTouchX) / 3 * Num_impulso));
+									possivel = false;
+									dedos.remove(id);
+								}
+
+							}
+						}
+					}
+				}
+			}
+			if (action == MotionEvent.ACTION_UP) {
+				Log.i("foi", "UP !!!");
+				int id = event.getPointerId(event.getActionIndex());
+
+				a = (int) event.getX(id);
+				b = (int) event.getY(id);
+				if (possivel) {
+					if (corda.contains(a, b)) {
+
+						if (PriTouch == "corda") {
+
+							aplicarForca((int) (a - q) / 3 * Num_impulso);
+							possivel = false;
+
+						}
+						if (SegTouch == "corda") {
+
+							aplicarForca((int) (a - segTouchX) / 3
+									* Num_impulso);
+							possivel = false;
+
+						}
+
+					}
+				}
+				if (impp) {
+					if (Impulso.contains(a, b)) {
+						Num_impulso = (current - period) * 10;
+						impp = false;
+					}
+				}
+				dedos.remove(id);
+			}
 		}
-		return super.onTouchEvent(event);
+
 	}
 
 	private void aplicarForca(int i) {
@@ -225,6 +303,7 @@ public class Game extends View implements Runnable
 			period -= 1;
 			counter = 0;
 		}
+		processEventQueue();
 	}
 
 }
